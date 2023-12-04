@@ -1,0 +1,29 @@
+frappe.ui.form.on('Payment Order', {
+	refresh(frm) {
+	    if(!frm.doc.custom_printed && !frm.doc.__islocal){
+		    frm.add_custom_button(__("Print 🖨️"), function () {
+                frappe.confirm(
+                    __("You Can Print This Document Only Once"),
+                    function () {
+                        frm.trigger("print_doc");
+                    },
+                    function () {
+                    }
+                );
+            }, "fa fa-download");
+	    }
+	    frm.fields_dict.references.grid.update_docfield_property("bank_account", "reqd", 0);
+	},
+	print_doc(frm) {
+	    frm.set_value("custom_printed",1)
+	    setTimeout(() => {
+	        frm.save_or_update()
+	    }, 100);
+	    setTimeout(() => {
+			frappe.set_route("print", frm.doc.doctype, frm.doc.name);
+	    }, 1500);
+	},
+	async before_save(frm){
+	    frm.fields_dict.references.grid.update_docfield_property("bank_account", "reqd", 0);
+	},
+})
